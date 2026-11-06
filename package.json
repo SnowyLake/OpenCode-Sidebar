@@ -1,0 +1,37 @@
+{
+  "name": "opencode-sidebar",
+  "version": "0.1.0",
+  "description": "Cache, context, and subagent statistics in the OpenCode sidebar.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SnowyLake/OpenCode-Sidebar.git"
+  },
+  "exports": {
+    "./tui": "./src/tui.tsx"
+  },
+  "files": ["src"],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.ts",
+    "test:tui": "bun test --preload @opentui/solid/preload ./test/Tui.test.mjs ./test/SubagentTui.test.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "peerDependencies": {
+    "@opencode/plugin": "^2.2.5",
+    "@opentui/solid": "^0.8.2",
+    "solid-js": "^1.9.18"
+  },
+  "devDependencies": {
+    "@opencode/client": "2.2.5",
+    "@opencode/plugin": "2.2.5",
+    "@opentui/core": "0.8.2",
+    "@opentui/solid": "0.8.2",
+    "@types/node": "^24.0.0",
+    "solid-js": "1.9.18",
+    "typescript": "7.0.2"
+  }
+}
