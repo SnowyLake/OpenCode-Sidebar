@@ -9,13 +9,14 @@
     "url": "git+https://github.com/SnowyLake/OpenCode-Sidebar.git"
   },
   "exports": {
-    "./tui": "./src/tui.tsx"
+    "./tui": "./dist/tui.js"
   },
-  "files": ["src"],
+  "files": ["dist"],
   "scripts": {
+    "build:tui": "bun run script/build.mjs",
     "typecheck": "tsc --noEmit",
     "test": "node --test test/*.test.ts",
-    "test:tui": "bun test --preload @opentui/solid/preload ./test/Tui.test.mjs ./test/SubagentTui.test.mjs"
+    "test:tui": "bun run build:tui && bun test --preload @opentui/solid/preload ./test/Tui.test.mjs ./test/SubagentTui.test.mjs"
   },
   "engines": {
     "node": ">=24"

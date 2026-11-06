@@ -3,7 +3,9 @@
 ## 项目范围
 
 - 当前适配 OpenCode 2.2.5 的 TUI 插件接口, 不适用于 1.x 或桌面 GUI.
-- 包仅导出 `./tui`, 直接提供 TypeScript/TSX 源码, 由宿主编译并复用宿主的 Solid/OpenTUI 实例, 无独立构建产物.
+- 包仅导出 `./tui`, 指向预编译的 ESM `dist/tui.js`. 构建仅合并项目源码, 所有包依赖保留裸导入, 复用宿主的 Solid/OpenTUI 实例.
+- OpenTUI 不编译 `node_modules` 中的 Solid TSX, OpenCode 安装插件时禁用生命周期脚本. 因此 `dist/tui.js` 必须纳入 Git 和发布包, 修改源码后执行 `bun run build:tui` 并同步更新产物.
+- 构建脚本使用 `build:tui`, 不添加 `build`, `prepare` 或 `prepack`; 这些脚本名会使 Git 安装器额外安装构建依赖, 即使已禁用生命周期脚本.
 - 插件读取会话状态, 不请求模型, 不修改消息, 不单独写入统计文件.
 - README 仅简述功能. 对后续维护有价值的约定写在本文件, 不记录参考项目.
 
@@ -45,6 +47,6 @@ npm test
 bun run test:tui
 ```
 
-按改动范围选择验证: 纯计算对应 `test/*.test.ts`; 宿主接入及界面对应 `test/Tui.test.mjs` 和 `test/SubagentTui.test.mjs`. TUI 测试使用真实 OpenTUI renderer, 会话和事件由夹具提供. 包入口或发布内容变化时执行 `npm pack --dry-run`. 仅文档变更检查内容和路径即可.
+按改动范围选择验证: 纯计算对应 `test/*.test.ts`; 宿主接入及界面对应 `test/Tui.test.mjs` 和 `test/SubagentTui.test.mjs`. `test:tui` 先构建发布入口, 再使用真实 OpenTUI renderer 测试; `Tui.test.mjs` 将发布文件复制到 `node_modules` 后验证加载与响应式更新, 会话和事件由夹具提供. 包入口或发布内容变化时, 先构建再执行 `npm pack --dry-run`. 仅文档变更检查内容和路径即可.
 
 本地集成时, 将仓库链接到目标项目的 `.opencode/plugins/opencode-sidebar`, 重启 OpenCode 并展开 sidebar. 先检查已有同名目录, 不覆盖其内容.

@@ -1,10 +1,22 @@
-import { expect, test } from "bun:test";
+import { afterAll, expect, test } from "bun:test";
 import { Host } from "@opencode/plugin/host";
+import * as pluginRuntime from "@opencode/plugin/tui";
 import { testRender } from "@opentui/solid";
+import { ensureRuntimePluginSupport } from "@opentui/solid/runtime-plugin-support/configure";
 import { createSignal } from "solid-js";
 import { createStore, produce } from "solid-js/store";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { FALLBACK, MAX_SAT, desaturateTo } from "../src/Color.ts";
+
+const root = fileURLToPath(new URL("..", import.meta.url));
+const temporary = mkdtempSync(join(root, "node_modules", ".opencode-sidebar-test-"));
+afterAll(() => rmSync(temporary, { recursive: true, force: true }));
+const directory = join(temporary, "node_modules", "opencode-sidebar");
+mkdirSync(directory, { recursive: true });
+const manifest = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+for (const file of ["package.json", ...manifest.files]) cpSync(join(root, file), join(directory, file), { recursive: true });
 
 /** RGB of a theme feedback color after the reference plugin's desaturation. */
 function muted(kind) {
@@ -38,11 +50,11 @@ function barColor(view, label) {
   }
 }
 
-test("package entry renders reactive cache statistics and unregisters cleanly", async () => {
-  const directory = fileURLToPath(new URL("..", import.meta.url));
+test("installed package entry renders reactive cache statistics and unregisters cleanly", async () => {
   const entry = Host.resolve({ directory });
   expect(entry.server).toBeUndefined();
-  expect(entry.tui).toContain("tui.tsx");
+  expect(fileURLToPath(entry.tui)).toBe(join(directory, "dist", "tui.js"));
+  ensureRuntimePluginSupport({ additional: { "@opencode/plugin/tui": pluginRuntime } });
   const { default: plugin } = await Host.load(entry.tui);
   const [sessionID, setSessionID] = createSignal("first");
   const [tokens, setTokens] = createSignal({ input: 100, output: 0, reasoning: 0, cache: { read: 300, write: 0 } });
